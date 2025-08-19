@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>1학년 8반 좌석표</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&family=Noto+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --green:#2e7d32; --red:#c62828;
+      --line:#cfcfcf; --title:#5b82d8;
+      --aisle:24px;   /* 쌍과 쌍 사이 여백(통로) */
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:'Noto Sans KR','Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#111;background:#fff}
+
+    .page{max-width:1000px;margin:24px auto 48px;padding:0 16px;border:2px solid #111;border-radius:4px}
+    .head{text-align:center;padding-top:8px}
+    .slogan{margin:16px 0 6px;font-weight:700;font-size:32px;color:var(--title)}
+    .klass{font-size:32px;font-weight:800;margin:0 0 10px}
+    .desk-teacher{display:inline-block;padding:10px 40px;border:2px solid #888;border-radius:4px;margin:6px auto 14px;font-weight:700;background:#fff}
+
+    /* 본문: 좌석표 + 복도(오른쪽) */
+    .layout{display:grid;grid-template-columns:1fr 100px;gap:20px;align-items:start;padding:0 24px 24px}
+
+    /* 복도 */
+    .hall{border:1.8px solid #111;border-radius:4px;height:560px;display:flex;align-items:center;justify-content:center;background:#fff}
+    .hall .label{writing-mode:vertical-rl;font-size:22px;font-weight:700;letter-spacing:.15em}
+
+    /* 좌석: 6행, 각 행= 2인 책상 3개(쌍 사이에 여백) */
+    .rows{display:grid;row-gap:8px;justify-items:center}
+    .row{display:grid;grid-template-columns:repeat(3, minmax(200px, 1fr));column-gap:var(--aisle);width:100%;max-width:720px}
+
+    .pair{display:grid;grid-template-columns:1fr 1fr;}
+    .cell{border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;height:80px;background:#fff}
+
+    .name{appearance:none;border:0;background:transparent;cursor:pointer;
+          font:600 16px/1.3 'Noto Sans KR',sans-serif;color:var(--green);
+          padding:2px 6px;border-radius:6px;transition:transform .05s ease}
+    .name:active{transform:scale(.98)}
+    .name.selected{color:var(--red);}
+
+    .id{font-size:13px;color:#555;margin-top:3px}
+
+    @media (max-width:760px){
+      .layout{grid-template-columns:1fr 80px}
+      .row{grid-template-columns:repeat(3, minmax(160px,1fr))}
+      .cell{height:70px}
+      .hall{height:520px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="head">
+      <div class="slogan">불꽃 열정 포기하지 말자!!</div>
+      <h1 class="klass">1학년 8반</h1>
+      <div class="desk-teacher">교&nbsp;탁</div>
+    </div>
+
+    <div class="layout">
+      <!-- 좌석표 -->
+      <section class="rows" id="rows">
+        <!-- 1행 -->
+        <div class="row">
+          <div class="pair">
+            <div class="cell">
+              <button class="name">박경록</button>
+              <div class="id">10813</div>
+            </div>
+            <div class="cell">
+              <button class="name">고동민</button>
+              <div class="id">10101</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">장해찬</button>
+              <div class="id">10830</div>
+            </div>
+            <div class="cell">
+              <button class="name">이선준</button>
+              <div class="id">10824</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">오태진</button>
+              <div class="id">10820</div>
+            </div>
+            <div class="cell">
+              <button class="name">김민서</button>
+              <div class="id">10806</div>
+            </div>
+          </div>
+        </div>
+        <!-- 2행 (예시) -->
+        <div class="row">
+          <div class="pair">
+            <div class="cell">
+              <button class="name">이재성</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">황동규</button>
+              <div class="id">10835</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">신민호</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">송재호</button>
+              <div class="id">10818</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">김선준</button>
+              <div class="id">10807</div>
+            </div>
+            <div class="cell">
+              <button class="name">김다원</button>
+              <div class="id">10803</div>
+            </div>
+          </div>
+        </div>
+        <!-- 3행 (예시) -->
+                 <div class="row">
+          <div class="pair">
+            <div class="cell">
+              <button class="name">이인수</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">황인환</button>
+              <div class="id">10836</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">민경한</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">방지우</button>
+              <div class="id">108</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">조현빈</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">허원</button>
+              <div class="id">108</div>
+            </div>
+          </div>
+        </div>
+
+                <div class="row">
+          <div class="pair">
+            <div class="cell">
+              <button class="name">한상휘</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">전윤우</button>
+              <div class="id">108</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">박현규</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">장재민</button>
+              <div class="id">108</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">이건희</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">김지후</button>
+              <div class="id">10809</div>
+            </div>
+          </div>
+        </div>
+
+                <div class="row">
+          <div class="pair">
+            <div class="cell">
+              <button class="name">김가빈</button>
+              <div class="id">10802</div>
+            </div>
+            <div class="cell">
+              <button class="name">이지상</button>
+              <div class="id">10827</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">김태환</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">윤하유</button>
+              <div class="id">108</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">박건호</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">김지효</button>
+              <div class="id">108</div>
+            </div>
+          </div>
+        </div>
+
+                <div class="row">
+          <div class="pair">
+            <div class="cell">
+              <button class="name">김도현</button>
+              <div class="id">10804</div>
+            </div>
+            <div class="cell">
+              <button class="name">&nbsp;</button>
+              <div class="id">&nbsp;</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">이진규</button>
+              <div class="id">108</div>
+            </div>
+            <div class="cell">
+              <button class="name">손주형</button>
+              <div class="id">108</div>
+            </div>
+          </div>
+          <div class="pair">
+            <div class="cell">
+              <button class="name">김민범</button>
+              <div class="id">10805</div>
+            </div>
+            <div class="cell">
+              <button class="name">박민규</button>
+              <div class="id">108</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 복도 (오른쪽) -->
+      <aside class="hall">
+        <div class="label">복도</div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    // 이름: 초록 ↔ 빨강 토글
+    document.querySelectorAll('.name').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        btn.classList.toggle('selected');
+        const cell = btn.parentElement;
+        cell.style.background = btn.classList.contains('selected') ? '#ffe8e8' : '#fff';
+      });
+    });
+  </script>
+</body>
+</html>
