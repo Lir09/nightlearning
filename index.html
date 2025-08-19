@@ -73,7 +73,7 @@
     .save-btn{background:#2e7d32;color:#fff}
     .cancel-btn{background:#ccc}
     .id {
-  font-size: 12px;
+  font-size: 14px;
   color: #333;
 }
 .cip-result {
@@ -115,11 +115,10 @@
 
 /* 결과도 학번과 동일 크기로 */
 .cip-result{
-  font-size:14px;
+  font-size:12px;
   color:#444;
   margin-top:2px;
 }
-
 
     @media (max-width:760px){
       .layout{grid-template-columns:1fr 80px}
@@ -409,7 +408,7 @@
         </div>
       </section>
 
-      <aside class="hall">
+      <aside class="hall" id="hall">
         <div class="label">복도</div>
       </aside>
     </div>
@@ -448,6 +447,19 @@
   const modal = document.getElementById('modal');
   const reasonInput = document.getElementById('reasonInput');
   let currentCell = null;
+
+  // 복도 클릭 → 전체 화면
+document.getElementById('hall').addEventListener('click', ()=>{
+  const elem = document.documentElement; // 전체 페이지를 전체 화면으로
+  if(elem.requestFullscreen){
+    elem.requestFullscreen();
+  }else if(elem.webkitRequestFullscreen){ // Safari
+    elem.webkitRequestFullscreen();
+  }else if(elem.msRequestFullscreen){ // 구형 IE/Edge
+    elem.msRequestFullscreen();
+  }
+});
+
 
   // 이름 클릭 → 모달 열기
   document.querySelectorAll('.name').forEach(btn=>{
@@ -498,4 +510,3 @@ currentCell.querySelector('.cip-result').textContent = selected.join(", ");
 
 </body>
 </html>
-
