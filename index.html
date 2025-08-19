@@ -9,7 +9,7 @@
     :root{
       --green:#2e7d32; --red:#c62828;
       --line:#cfcfcf; --title:#5b82d8;
-      --aisle:24px;   /* 쌍과 쌍 사이 여백(통로) */
+      --aisle:24px;
     }
     *{box-sizing:border-box}
     body{margin:0;font-family:'Noto Sans KR','Inter',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#111;background:#fff}
@@ -20,32 +20,111 @@
     .klass{font-size:32px;font-weight:800;margin:0 0 10px}
     .desk-teacher{display:inline-block;padding:10px 40px;border:2px solid #888;border-radius:4px;margin:6px auto 14px;font-weight:700;background:#fff}
 
-    /* 본문: 좌석표 + 복도(오른쪽) */
     .layout{display:grid;grid-template-columns:1fr 100px;gap:20px;align-items:start;padding:0 24px 24px}
 
-    /* 복도 */
     .hall{border:1.8px solid #111;border-radius:4px;height:560px;display:flex;align-items:center;justify-content:center;background:#fff}
     .hall .label{writing-mode:vertical-rl;font-size:22px;font-weight:700;letter-spacing:.15em}
 
-    /* 좌석: 6행, 각 행= 2인 책상 3개(쌍 사이에 여백) */
     .rows{display:grid;row-gap:8px;justify-items:center}
     .row{display:grid;grid-template-columns:repeat(3, minmax(200px, 1fr));column-gap:var(--aisle);width:100%;max-width:720px}
 
     .pair{display:grid;grid-template-columns:1fr 1fr;}
-    .cell{border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;height:80px;background:#fff}
+    .cell{border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;height:90px;background:#fff;padding-top:4px}
+
+    .reason{font-size:12px;color:#444;min-height:16px;margin-bottom:4px}
 
     .name{appearance:none;border:0;background:transparent;cursor:pointer;
           font:600 16px/1.3 'Noto Sans KR',sans-serif;color:var(--green);
-          padding:2px 6px;border-radius:6px;transition:transform .05s ease}
+          padding:2px 6px;border-radius:6px;transition:transform .05s ease;margin-top:2px}
     .name:active{transform:scale(.98)}
     .name.selected{color:var(--red);}
 
-    .id{font-size:13px;color:#555;margin-top:3px}
+    .id{font-size:13px;color:#555;margin-top:2px}
+
+
+/* .cip-group { 
+  margin: 10px 0; 
+  text-align: left;    
+}
+.cip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  cursor: pointer;               
+}
+.cip-row input {
+  width: 18px; height: 18px;      
+} */
+
+
+
+
+
+    /* 모달 */
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.45);align-items:center;justify-content:center;z-index:1000}
+    .modal-content{background:#fff;padding:20px 24px;border-radius:8px;max-width:320px;width:90%;text-align:center}
+    .modal-content h2{margin:0 0 12px;font-size:18px}
+    .modal-content input{width:100%;padding:8px;font-size:14px;margin-bottom:12px}
+    .modal-content button{margin:0 6px;padding:6px 14px;font-size:14px;border:none;border-radius:6px;cursor:pointer}
+    .save-btn{background:#2e7d32;color:#fff}
+    .cancel-btn{background:#ccc}
+    .id {
+  font-size: 14px;
+  color: #333;
+}
+.cip-result {
+  font-size: 12px;
+  color: #444;
+}
+/* 모달 차수 선택 레이아웃 */
+.cip-group{
+  margin:10px 0;
+  display:flex;
+  flex-direction:column;   /* 세로로 쌓기 */
+  gap:8px;
+  align-items:flex-start;  /* 왼쪽으로 붙이기 */
+  width:100%;
+}
+
+.cip-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  border:1px solid #e6e6e6;
+  border-radius:10px;
+  width:100%;             /* 줄 전체 폭 사용 */
+  background:#fff;
+  cursor:pointer;         /* 줄 전체 클릭 가능 */
+}
+
+.cip-row input{
+  width:18px; height:18px; margin:0;
+  accent-color:#2e7d32;   /* 체크 색상 */
+}
+
+.cip-row span{
+  font-size:14px;         /* 학번과 같은 크기 */
+  color:#333;
+  white-space:nowrap;     /* '1차' 줄바꿈 방지 */
+}
+
+/* 결과도 학번과 동일 크기로 */
+.cip-result{
+  font-size:14px;
+  color:#444;
+  margin-top:2px;
+}
+
 
     @media (max-width:760px){
       .layout{grid-template-columns:1fr 80px}
       .row{grid-template-columns:repeat(3, minmax(160px,1fr))}
-      .cell{height:70px}
+      .cell{height:80px}
       .hall{height:520px}
     }
   </style>
@@ -59,38 +138,49 @@
     </div>
 
     <div class="layout">
-      <!-- 좌석표 -->
       <section class="rows" id="rows">
         <!-- 1행 -->
         <div class="row">
           <div class="pair">
             <div class="cell">
+              <div class="reason"></div>
               <button class="name">박경록</button>
               <div class="id">10813</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">고동민</button>
               <div class="id">10101</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">장해찬</button>
               <div class="id">10830</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">이선준</button>
               <div class="id">10824</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">오태진</button>
               <div class="id">10820</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">김민서</button>
               <div class="id">10806</div>
+              <div class="cip-result"></div>
             </div>
           </div>
         </div>
@@ -98,65 +188,89 @@
         <div class="row">
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">이재성</button>
               <div class="id">10826</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">황동규</button>
               <div class="id">10835</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">신민호</button>
               <div class="id">10819</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">송재호</button>
               <div class="id">10818</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">김선준</button>
               <div class="id">10807</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+              <div class="reason"></div>
               <button class="name">김다원</button>
               <div class="id">10803</div>
+              <div class="cip-result"></div>
             </div>
           </div>
         </div>
         <!-- 3행 (예시) -->
-                 <div class="row">
+                <div class="row">
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">이인수</button>
               <div class="id">10825</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">황인환</button>
               <div class="id">10836</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">민경한</button>
               <div class="id">10811</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">방지우</button>
               <div class="id">10816</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">조현빈</button>
               <div class="id">10832</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">허원</button>
               <div class="id">10834</div>
+              <div class="cip-result"></div>
             </div>
           </div>
         </div>
@@ -164,32 +278,44 @@
                 <div class="row">
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">한상휘</button>
               <div class="id">10833</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">전윤우</button>
               <div class="id">10831</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">박현규</button>
               <div class="id">10815</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">장재민</button>
               <div class="id">10829</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">이건희</button>
               <div class="id">10823</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">김지후</button>
               <div class="id">10809</div>
+              <div class="cip-result"></div>
             </div>
           </div>
         </div>
@@ -197,32 +323,44 @@
                 <div class="row">
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">김가빈</button>
               <div class="id">10802</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">이지상</button>
               <div class="id">10827</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">김태환</button>
               <div class="id">10810</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">윤하유</button>
               <div class="id">10822</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">박건호</button>
               <div class="id">10812</div>
+              <div class="cip-result"></div>
             </div>
-            <div class="cell">
+            <div class="cell">  
+              <div class="reason"></div>
               <button class="name">김지효</button>
               <div class="id">10808</div>
+              <div class="cip-result"></div>
             </div>
           </div>
         </div>
@@ -230,8 +368,10 @@
                 <div class="row">
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">김도현</button>
               <div class="id">10804</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
               <button class="name">&nbsp;</button>
@@ -240,43 +380,121 @@
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">이진규</button>
               <div class="id">10828</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">손주형</button>
               <div class="id">10817</div>
+              <div class="cip-result"></div>
             </div>
           </div>
           <div class="pair">
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">김민범</button>
               <div class="id">10805</div>
+              <div class="cip-result"></div>
             </div>
             <div class="cell">
+                <div class="reason"></div>
               <button class="name">박민규</button>
               <div class="id">10814</div>
+              <div class="cip-result"></div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- 복도 (오른쪽) -->
       <aside class="hall">
         <div class="label">복도</div>
       </aside>
     </div>
   </div>
 
-  <script>
-    // 이름: 초록 ↔ 빨강 토글
-    document.querySelectorAll('.name').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        btn.classList.toggle('selected');
-        const cell = btn.parentElement;
-        cell.style.background = btn.classList.contains('selected') ? '#ffe8e8' : '#fff';
+<!-- 모달 -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h2>사유 입력 (최대 8자)</h2>
+    <input type="text" id="reasonInput" maxlength="8" placeholder="사유를 입력하세요"/>
+    
+<!-- 차수 선택 -->
+<div class="cip-group">
+  <label class="cip-row">
+    <input type="checkbox" class="cip" value="1차"><span class="num_font">1차</span>
+  </label>
+  <label class="cip-row">
+    <input type="checkbox" class="cip" value="2차"><span class="num_font">2차</span>
+  </label>
+  <label class="cip-row">
+    <input type="checkbox" class="cip" value="3차"><span class="num_font">3차</span>
+  </label>
+</div>
+
+
+
+
+    <div style="text-align:center;margin-top:10px">
+      <button class="save-btn">저장</button>
+      <button class="cancel-btn">취소</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('modal');
+  const reasonInput = document.getElementById('reasonInput');
+  let currentCell = null;
+
+  // 이름 클릭 → 모달 열기
+  document.querySelectorAll('.name').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      currentCell = btn.parentElement;
+      reasonInput.value = currentCell.querySelector('.reason').textContent.trim();
+
+      // cip 체크 초기화
+      const cipResult = currentCell.querySelector('.cip-result');
+      const savedCip = cipResult ? cipResult.textContent.split(", ") : [];
+      document.querySelectorAll('.cip').forEach(cb=>{
+        cb.checked = savedCip.includes(cb.value);
       });
+
+      modal.style.display = 'flex';
+      reasonInput.focus();
     });
-  </script>
+  });
+
+  // 저장 버튼
+  document.querySelector('.save-btn').addEventListener('click', ()=>{
+    if(currentCell){
+      const text = reasonInput.value.trim();
+      currentCell.querySelector('.reason').textContent = text;
+
+      const btn = currentCell.querySelector('.name');
+      btn.classList.toggle('selected', text.length>0);
+
+      currentCell.style.background = text.length>0 ? '#ffe8e8' : '#fff';
+
+      // CIP 결과 저장
+const selected = Array.from(document.querySelectorAll('.cip:checked'))
+                      .map(cb=>cb.value);
+currentCell.querySelector('.cip-result').textContent = selected.join(", ");
+
+    }
+    modal.style.display='none';
+  });
+
+  document.querySelector('.cancel-btn').addEventListener('click', ()=>{
+    modal.style.display='none';
+  });
+
+  window.addEventListener('click', e=>{
+    if(e.target===modal){modal.style.display='none'}
+  });
+</script>
+
 </body>
 </html>
