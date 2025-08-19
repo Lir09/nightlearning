@@ -444,69 +444,61 @@
 </div>
 
 <script>
-  const modal = document.getElementById('modal');
-  const reasonInput = document.getElementById('reasonInput');
   let currentCell = null;
 
-  // 복도 클릭 → 전체 화면
-document.getElementById('hall').addEventListener('click', ()=>{
-  const elem = document.documentElement; // 전체 페이지를 전체 화면으로
-  if(elem.requestFullscreen){
-    elem.requestFullscreen();
-  }else if(elem.webkitRequestFullscreen){ // Safari
-    elem.webkitRequestFullscreen();
-  }else if(elem.msRequestFullscreen){ // 구형 IE/Edge
-    elem.msRequestFullscreen();
-  }
-});
-
-
-  // 이름 클릭 → 모달 열기
+  // 이름 버튼 클릭 → 모달 열기
   document.querySelectorAll('.name').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      currentCell = btn.parentElement;
-      reasonInput.value = currentCell.querySelector('.reason').textContent.trim();
+      currentCell = btn.closest('.cell');
+      const modal = document.getElementById('reasonModal');
+      modal.style.display='flex';
 
-      // cip 체크 초기화
-      const cipResult = currentCell.querySelector('.cip-result');
-      const savedCip = cipResult ? cipResult.textContent.split(", ") : [];
+      // 기존 값 불러오기
+      const reason = currentCell.querySelector('.reason').textContent;
+      document.getElementById('reasonInput').value = reason;
+
+      // 기존 CIP(1차 2차 3차) 불러오기
+      const cipText = currentCell.querySelector('.cip-result').textContent;
       document.querySelectorAll('.cip').forEach(cb=>{
-        cb.checked = savedCip.includes(cb.value);
+        cb.checked = cipText.includes(cb.value);
       });
-
-      modal.style.display = 'flex';
-      reasonInput.focus();
     });
   });
 
   // 저장 버튼
   document.querySelector('.save-btn').addEventListener('click', ()=>{
     if(currentCell){
-      const text = reasonInput.value.trim();
+      const text = document.getElementById('reasonInput').value.trim();
       currentCell.querySelector('.reason').textContent = text;
 
+      // 이름 색상/좌석 배경 반영
       const btn = currentCell.querySelector('.name');
       btn.classList.toggle('selected', text.length>0);
-
       currentCell.style.background = text.length>0 ? '#ffe8e8' : '#fff';
 
-      // CIP 결과 저장
-const selected = Array.from(document.querySelectorAll('.cip:checked'))
-                      .map(cb=>cb.value);
-currentCell.querySelector('.cip-result').textContent = selected.join(", ");
-
+      // CIP 체크 결과 저장
+      const selected = Array.from(document.querySelectorAll('.cip:checked'))
+                            .map(cb=>cb.value);
+      currentCell.querySelector('.cip-result').textContent = selected.join(", ");
     }
-    modal.style.display='none';
+    document.getElementById('reasonModal').style.display='none';
   });
 
-  document.querySelector('.cancel-btn').addEventListener('click', ()=>{
-    modal.style.display='none';
+  // 취소 버튼 (닫히지 않음 → 눌러도 동작 X)
+  document.querySelector('.cancel-btn').addEventListener('click', (e)=>{
+    e.preventDefault();
+    // 아무 동작 없음
   });
 
+  // 배경 클릭 → 닫히지 않음 (아예 막음)
   window.addEventListener('click', e=>{
-    if(e.target===modal){modal.style.display='none'}
+    const modal = document.getElementById('reasonModal');
+    if(e.target===modal){
+      // 닫히지 않음
+    }
   });
 </script>
+
 
 </body>
 </html>
