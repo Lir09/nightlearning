@@ -357,69 +357,145 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const modal = document.getElementById('modal');
-      const reasonInput = document.getElementById('reasonInput');
-      const saveBtn = document.querySelector('.save-btn');
-      const cancelBtn = document.querySelector('.cancel-btn');
-      const cipCheckboxes = () => Array.from(document.querySelectorAll('.cip'));
-      let currentCell = null;
+<script>
+// ===== 로컬 저장소 헬퍼 =====
+const STORE_KEY = 'seats_v1';
 
-      document.querySelectorAll('.name').forEach(btn => {
-        btn.addEventListener('click', () => {
-          currentCell = btn.closest('.cell');
-          const reasonEl = currentCell.querySelector('.reason');
-          reasonInput.value = reasonEl ? reasonEl.textContent.trim() : '';
-          const cipResultEl = currentCell.querySelector('.cip-result');
-          const saved = cipResultEl && cipResultEl.textContent.trim()
-            ? cipResultEl.textContent.split(', ').map(s => s.trim())
-            : [];
-          cipCheckboxes().forEach(cb => { cb.checked = saved.includes(cb.value); });
-          modal.style.display = 'flex';
-          reasonInput.focus();
-        });
-      });
+function loadStore(){
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); }
+  catch { return {}; }
+}
+function saveStore(obj){
+  localStorage.setItem(STORE_KEY, JSON.stringify(obj));
+}
 
-      saveBtn.addEventListener('click', () => {
-        if (currentCell) {
-          const text = reasonInput.value.trim();
-          const reasonEl = currentCell.querySelector('.reason');
-          if (reasonEl) reasonEl.textContent = text;
-          const nameBtn = currentCell.querySelector('.name');
-          if (nameBtn) nameBtn.classList.toggle('selected', text.length > 0);
-          currentCell.style.background = text.length > 0 ? '#ffe8e8' : '#fff';
-          const selected = cipCheckboxes().filter(cb => cb.checked).map(cb => cb.value);
-          let cipResultEl = currentCell.querySelector('.cip-result');
-          if (!cipResultEl) {
-            cipResultEl = document.createElement('div');
-            cipResultEl.className = 'cip-result';
-            currentCell.appendChild(cipResultEl);
-          }
-          cipResultEl.textContent = selected.join(', ');
-        }
-        modal.style.display = 'none';
-      });
+// 셀 고유키: 학번 있으면 학번, 없으면 이름 사용
+function seatKey(cell){
+  const id = (cell.querySelector('.id')?.textContent || '').trim();
+  const name = (cell.querySelector('.name')?.textContent || '').trim();
+  return `seat:${id || name}`;
+}
 
-      cancelBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-      });
+// 셀에 상태 적용
+function applyStateToCell(cell, state){
+  const reasonEl = cell.querySelector('.reason');
+  const nameBtn  = cell.querySelector('.name');
+  let cipEl      = cell.querySelector('.cip-result');
 
-      window.addEventListener('click', (e) => {
-        if (e.target === modal) {}
-      });
+  if (!cipEl) {
+    cipEl = document.createElement('div');
+    cipEl.className = 'cip-result';
+    cell.appendChild(cipEl);
+  }
+
+  if (reasonEl) reasonEl.textContent = state.reason || '';
+  if (nameBtn)  nameBtn.classList.toggle('selected', !!state.selected);
+  cell.style.background = state.selected ? '#ffe8e8' : '#fff';
+  cipEl.textContent = (state.rounds || []).join(', ');
+}
+
+// 전체 복원
+function hydrateAll(){
+  const store = loadStore();
+  document.querySelectorAll('.cell').forEach(cell => {
+    const key = seatKey(cell);
+    if (store[key]) applyStateToCell(cell, store[key]);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const modal       = document.getElementById('modal');
+  const reasonInput = document.getElementById('reasonInput');
+  const saveBtn     = document.querySelector('.save-btn');
+  const cancelBtn   = document.querySelector('.cancel-btn');
+  const hall        = document.getElementById('hall');
+  const desk        = document.querySelector('.desk-teacher');
+
+  const cipCheckboxes = () => Array.from(document.querySelectorAll('.cip'));
+  let currentCell = null;
+
+  // 초기 복원
+  hydrateAll();
+
+  // 이름 클릭 → 모달 열기 (저장으로만 닫힘)
+  document.querySelectorAll('.name').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentCell = btn.closest('.cell');
+
+      // 사유/차수 복원
+      const reasonEl   = currentCell.querySelector('.reason');
+      const cipResult  = currentCell.querySelector('.cip-result')?.textContent.trim() || '';
+      reasonInput.value = reasonEl ? reasonEl.textContent.trim() : '';
+
+      const savedRounds = cipResult ? cipResult.split(', ').map(s => s.trim()) : [];
+      cipCheckboxes().forEach(cb => { cb.checked = savedRounds.includes(cb.value); });
+
+      modal.style.display = 'flex';
+      reasonInput.focus();
     });
+  });
 
-    document.getElementById('hall').addEventListener('click', ()=>{
+  // 저장 → 상태 반영 + 저장 + 모달 닫기
+  saveBtn.addEventListener('click', () => {
+    if (!currentCell) return;
+
+    const text = reasonInput.value.trim();
+    const rounds = cipCheckboxes().filter(cb => cb.checked).map(cb => cb.value);
+
+    const state = {
+      reason: text,
+      rounds,
+      selected: text.length > 0
+    };
+
+    // 화면 반영
+    applyStateToCell(currentCell, state);
+
+    // 저장
+    const store = loadStore();
+    store[seatKey(currentCell)] = state;
+    saveStore(store);
+
+    modal.style.display = 'none';
+    currentCell = null;
+  });
+
+  // 취소/배경 클릭 무시(저장으로만 닫힘)
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', e => e.preventDefault());
+  }
+  window.addEventListener('click', e => {
+    if (e.target === modal) { /* no-op */ }
+  });
+
+  // 복도 클릭 → 전체 화면
+  if (hall) {
+    hall.addEventListener('click', () => {
       const elem = document.documentElement;
-      if(elem.requestFullscreen){
-        elem.requestFullscreen();
-      }else if(elem.webkitRequestFullscreen){
-        elem.webkitRequestFullscreen();
-      }else if(elem.msRequestFullscreen){
-        elem.msRequestFullscreen();
-      }
+      if (elem.requestFullscreen) elem.requestFullscreen();
+      else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+      else if (elem.msRequestFullscreen) elem.msRequestFullscreen();
     });
-  </script>
+  }
+
+  // 교탁 클릭 → 전체 초기화(로컬스토리지 + 화면 상태)
+  if (desk) {
+    desk.addEventListener('click', () => {
+      if (!confirm('정말 전체 초기화할까요?')) return;
+      localStorage.removeItem(STORE_KEY);
+      document.querySelectorAll('.cell').forEach(cell => {
+        const reasonEl = cell.querySelector('.reason');
+        const nameBtn  = cell.querySelector('.name');
+        const cipEl    = cell.querySelector('.cip-result');
+
+        if (reasonEl) reasonEl.textContent = '';
+        if (nameBtn)  nameBtn.classList.remove('selected');
+        if (cipEl)    cipEl.textContent = '';
+        cell.style.background = '#fff';
+      });
+    });
+  }
+});
+</script>
 </body>
 </html>
