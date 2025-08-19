@@ -444,62 +444,78 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const modal = document.getElementById('modal');          // ✅ 실제 id와 일치
+  const reasonInput = document.getElementById('reasonInput');
+  const saveBtn = document.querySelector('.save-btn');
+  const cancelBtn = document.querySelector('.cancel-btn');
+  const cipCheckboxes = () => Array.from(document.querySelectorAll('.cip'));
   let currentCell = null;
 
-  // 이름 버튼 클릭 → 모달 열기
-  document.querySelectorAll('.name').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
+  // 이름 클릭 → 모달 열기
+  document.querySelectorAll('.name').forEach(btn => {
+    btn.addEventListener('click', () => {
       currentCell = btn.closest('.cell');
-      const modal = document.getElementById('reasonModal');
-      modal.style.display='flex';
 
-      // 기존 값 불러오기
-      const reason = currentCell.querySelector('.reason').textContent;
-      document.getElementById('reasonInput').value = reason;
+      // 기존 사유 복원
+      const reasonEl = currentCell.querySelector('.reason');
+      reasonInput.value = reasonEl ? reasonEl.textContent.trim() : '';
 
-      // 기존 CIP(1차 2차 3차) 불러오기
-      const cipText = currentCell.querySelector('.cip-result').textContent;
-      document.querySelectorAll('.cip').forEach(cb=>{
-        cb.checked = cipText.includes(cb.value);
-      });
+      // 기존 차수 복원
+      const cipResultEl = currentCell.querySelector('.cip-result');
+      const saved = cipResultEl && cipResultEl.textContent.trim()
+        ? cipResultEl.textContent.split(', ').map(s => s.trim())
+        : [];
+      cipCheckboxes().forEach(cb => { cb.checked = saved.includes(cb.value); });
+
+      // 모달 열기
+      modal.style.display = 'flex';
+      reasonInput.focus();
     });
   });
 
-  // 저장 버튼
-  document.querySelector('.save-btn').addEventListener('click', ()=>{
-    if(currentCell){
-      const text = document.getElementById('reasonInput').value.trim();
-      currentCell.querySelector('.reason').textContent = text;
+  // 저장 버튼 → 값 반영 후 모달 닫기 (유일한 닫기 방법)
+  saveBtn.addEventListener('click', () => {
+    if (currentCell) {
+      const text = reasonInput.value.trim();
 
-      // 이름 색상/좌석 배경 반영
-      const btn = currentCell.querySelector('.name');
-      btn.classList.toggle('selected', text.length>0);
-      currentCell.style.background = text.length>0 ? '#ffe8e8' : '#fff';
+      // 사유 반영
+      const reasonEl = currentCell.querySelector('.reason');
+      if (reasonEl) reasonEl.textContent = text;
 
-      // CIP 체크 결과 저장
-      const selected = Array.from(document.querySelectorAll('.cip:checked'))
-                            .map(cb=>cb.value);
-      currentCell.querySelector('.cip-result').textContent = selected.join(", ");
+      // 이름/배경 색 토글
+      const nameBtn = currentCell.querySelector('.name');
+      if (nameBtn) nameBtn.classList.toggle('selected', text.length > 0);
+      currentCell.style.background = text.length > 0 ? '#ffe8e8' : '#fff';
+
+      // 차수 저장
+      const selected = cipCheckboxes()
+        .filter(cb => cb.checked)
+        .map(cb => cb.value);
+      let cipResultEl = currentCell.querySelector('.cip-result');
+      if (!cipResultEl) {
+        // 혹시 누락되어 있으면 만들어 붙임
+        cipResultEl = document.createElement('div');
+        cipResultEl.className = 'cip-result';
+        currentCell.appendChild(cipResultEl);
+      }
+      cipResultEl.textContent = selected.join(', ');
     }
-    document.getElementById('reasonModal').style.display='none';
+    modal.style.display = 'none';  // ✅ 저장으로만 닫기
   });
 
-  // 취소 버튼 (닫히지 않음 → 눌러도 동작 X)
-  document.querySelector('.cancel-btn').addEventListener('click', (e)=>{
+  // 취소 버튼/배경 클릭 → 닫히지 않음
+  cancelBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    // 아무 동작 없음
+    // no-op
   });
-
-  // 배경 클릭 → 닫히지 않음 (아예 막음)
-  window.addEventListener('click', e=>{
-    const modal = document.getElementById('reasonModal');
-    if(e.target===modal){
-      // 닫히지 않음
+  window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      // no-op (배경 클릭 무시)
     }
   });
+});
 </script>
-
 
 </body>
 </html>
-
